@@ -6,8 +6,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Checkout from './Checkout';
 import Login from './Login';
 import { auth } from './firebase';
+import { useStateValue } from './StateProvider';
+import Payment from './Payment';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import Orders from './Orders';
+
+const promise = loadStripe('pk_test_51MCOdySGgdhuP7yKdXa5HfGwrXZPKaSa6iymD3vxmrfZlIqO1am1wqPCpj8PJXzXpZWoPWwjdYrH56gOuvguGZZ80022RxtrdM');
 
 function App() {
+  const [{ }, dispatch] = useStateValue();
 
   useEffect(() => {
     // will only run once when the app component loads...
@@ -15,27 +23,32 @@ function App() {
       console.log('THE USER IS >>> ', authUser);
       if (authUser) {
         // user logged in
-        dispatchEvent({
+        dispatch({
           type: 'SET_USER',
           user: authUser
         })
       } else {
         // user logged out
-        dispatchEvent({
-        type: 'SET_USER',
-        user: null
-      })
+        dispatch({
+          type: 'SET_USER',
+          user: null
+        })
       }
     })
   }, [])
-  
+
   return (
     <Router>
       <div className="app">
         <Routes>
-          <Route path='/login' element={[<Login/>]}/>
-          <Route path='/' element={[<Header/>, <Home/>]}/>
-          <Route path='/checkout' element={[<Header/>, <Checkout/>]}/>
+          <Route path='/login' element={[<Login />]} />
+          <Route path='/checkout' element={[<Header />, <Checkout />]} />
+          <Route path='/payment' element={[<Header />, <Elements stripe={promise}><Payment /></Elements>]} />
+          <Route path='/orders' element={[<Orders/>]} />
+          <Route path='/' element={[<Header />, <Home />]} />
+          {/* <Elements stripe={promise}>
+      <Payment />
+    </Elements> */}
         </Routes>
       </div>
     </Router>
