@@ -1,5 +1,5 @@
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import axios from 'axios';
+import axios from './axios';
 import React, { useEffect, useState } from 'react'
 import CurrencyFormat from 'react-currency-format';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ function Payment() {
     const stripe = useStripe();
     const elements = useElements();
 
-    const [succeeded, setSucceeded] = useState();
+    const [succeeded, setSucceeded] = useState(false);
     const [processing, setProcessing] = useState("");
 
     const [error, setError] = useState(null);
@@ -36,6 +36,7 @@ function Payment() {
     }, [basket])
     
     console.log('THE SECRET IS >>>', clientSecret);
+    console.log('👦', user);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -49,7 +50,7 @@ function Payment() {
             // paymentIntent = payment confirmation
             db
             .collection('users')
-            .doc(user?.id)
+            .doc(user.uid)
             .collection('orders')
             .doc(paymentIntent.id)
             .set({
@@ -130,10 +131,10 @@ function Payment() {
                         value={getBasketTotal(basket)}
                         displayType={"text"}
                         thousandSeparator={true}
-                        prefix={"$"}
+                        prefix={"₹"}
                         />
-                        <button disabled={processing || disabled || succeeded}>
-                            <span>{processing ? <p>Processing</p> : "Buy now"}</span>
+                        <button disabled={processing}>
+                            <span>{"Buy now"}</span>
                         </button>
                     </div>
                     {/* Errors */}
